@@ -83,3 +83,6 @@ users:
   jim-junior:
     name: Beingana Jim Junior
     email: jimjunior854@gmail.com
+  cmainas:
+    name: A test user
+    email: test@mail.com
