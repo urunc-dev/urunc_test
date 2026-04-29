@@ -32,7 +32,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@6836cdd2a11bebdf282bcdad4dd82558e8f058f4 # fix_auto_merge
+        uses: nubificus/git-trailers@60348012ae4e977498a958619e94222102a712d9 # fix_auto_merge
         with:
           user_info: .github/contributors.yaml
 
