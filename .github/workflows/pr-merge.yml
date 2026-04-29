@@ -23,11 +23,6 @@ jobs:
         with:
           egress-policy: audit
 
-      - name: Set up Git
-        run: |
-          git config --global user.name "urunc-bot[bot]"
-          git config --global user.email "urunc-bot[bot]@users.noreply.github.com"
-
       - name: Check out repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -42,15 +37,15 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@18fd322f3fbfd505b4de728974a4ac1f32f758a7 # feat_auto_merge
+        uses: nubificus/git-trailers@6836cdd2a11bebdf282bcdad4dd82558e8f058f4 # fix_auto_merge
         with:
           user_info: .github/contributors.yaml
 
       - name: Create a Pull Request from PR_BRANCH to main and merge it
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          PR_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
-          PR_BRANCH=${{ github.event.pull_request.base.ref }}
           PR_NUMBER=${PR_BRANCH#main-pr}
 
           # Use GitHub's API to get issues referenced with closing keywords
