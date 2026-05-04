@@ -39,7 +39,7 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@e3cefe03237a8a33f12ee41a8194bfb03a4d179b # fix_auto_merge
+        uses: nubificus/git-trailers@17259a95741e28bdfaddb3340656527d0708f53f # main
         with:
           user_info: .github/contributors.yaml
 
