@@ -41,6 +41,7 @@ jobs:
       - name: Append git trailers
         uses: nubificus/git-trailers@17259a95741e28bdfaddb3340656527d0708f53f # main
         with:
+          token: ${{ steps.generate-token.outputs.token }}
           user-info: .github/contributors.yaml
 
       - name: Create a Pull Request from PR_BRANCH to main and merge it
