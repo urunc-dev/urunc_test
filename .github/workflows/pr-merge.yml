@@ -39,9 +39,10 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@e3cefe03237a8a33f12ee41a8194bfb03a4d179b # fix_auto_merge
+        uses: nubificus/git-trailers@71281069ce88ac3c3c7615181bdbe1d022670000 # main_external
         with:
-          user_info: .github/contributors.yaml
+          user-info: .github/contributors.yaml
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Create a Pull Request from PR_BRANCH to main and merge it
         env:
