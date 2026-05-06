@@ -7,17 +7,12 @@ on:
     branches:
       - 'main-pr*'
 
-permissions:
-  contents: read
-
 jobs:
   add-trailers-and-merge:
     if: |
       github.event.pull_request.merged == true &&
       startsWith(github.event.pull_request.base.ref, 'main-pr')
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
