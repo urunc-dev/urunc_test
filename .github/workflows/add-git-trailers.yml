@@ -33,13 +33,6 @@ jobs:
           app-id: ${{ vars.URUNC_BOT_APP_ID }}
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          token: ${{ steps.generate-token.outputs.token }}
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-
       - name: Append git trailers
         uses: nubificus/git-trailers@71281069ce88ac3c3c7615181bdbe1d022670000 # main_external
         with:
