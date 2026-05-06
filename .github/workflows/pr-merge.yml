@@ -13,8 +13,7 @@ permissions:
 jobs:
   add-trailers-and-merge:
     if: |
-      github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.base.ref, 'main-pr')
+      github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,6 +23,10 @@ jobs:
         uses: step-security/harden-runner@ec9f2d5744a09debf3a187a3f4f675c53b671911 # v2.13.0
         with:
           egress-policy: audit
+
+        name: Exit if PR is not rebaseable
+        if: ${{ github.event.pull_request.rebaseable != null && github.event.pull_request.rebaseable == false }}
+        run: exit 1
 
       - name: Check out repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -39,7 +42,7 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@e3cefe03237a8a33f12ee41a8194bfb03a4d179b # fix_auto_merge
+        uses: nubificus/git-trailers@18fd322f3fbfd505b4de728974a4ac1f32f758a7
         with:
           user_info: .github/contributors.yaml
 
@@ -48,24 +51,13 @@ jobs:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           PR_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
-          PR_NUMBER=${PR_BRANCH#main-pr}
-
-          # Use GitHub's API to get issues referenced with closing keywords
-          CLOSING_ISSUES=$(gh pr view "$PR_NUMBER" --json closingIssuesReferences \
-            --jq '.closingIssuesReferences[].number' || true)
-
-          BODY="This PR was automatically created by GitHub Actions to merge changes from $PR_BRANCH into main."
-          if [ -n "$CLOSING_ISSUES" ]; then
-            while IFS= read -r issue; do
-              BODY="$BODY"$'\n'"Closes #$issue"
-            done <<< "$CLOSING_ISSUES"
-          fi
+          PR_BRANCH=${{ github.event.pull_request.base.ref }}
 
           # Create the pull request
           PR_URL=$(gh pr create \
             --head "$PR_BRANCH" \
             --base main \
             --title "Merge External PR: Merge $PR_BRANCH into main" \
-            --body "$BODY")
+            --body "This PR was automatically created by GitHub Actions to merge changes from $PR_BRANCH into main.")
 
           gh pr merge "$PR_URL" --rebase --admin --delete-branch
