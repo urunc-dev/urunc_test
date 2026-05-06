@@ -51,4 +51,5 @@ jobs:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
+          sleep 5
           gh pr merge "$PR_URL" --rebase --admin
