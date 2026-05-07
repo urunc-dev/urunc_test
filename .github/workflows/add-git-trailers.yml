@@ -45,13 +45,15 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@18fd322f3fbfd505b4de728974a4ac1f32f758a7
+        uses: nubificus/git-trailers@9bf4235762fb658e76ce9858fbb97b01ba9f33b8
         with:
           user_info: .github/contributors.yaml
+          rebase_branch: ${{ github.event.pull_request.head.ref }}
 
       - name: Merge PR
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
+          sleep 5 # Wait for github to get updated with the push. Otherwise merge will fail
           gh pr merge "$PR_URL" --rebase --admin
