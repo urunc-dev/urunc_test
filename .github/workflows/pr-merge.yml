@@ -24,7 +24,7 @@ jobs:
         with:
           egress-policy: audit
 
-        name: Exit if PR is not rebaseable
+      - name: Exit if PR is not rebaseable
         if: ${{ github.event.pull_request.rebaseable != null && github.event.pull_request.rebaseable == false }}
         run: exit 1
 
@@ -42,9 +42,11 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@18fd322f3fbfd505b4de728974a4ac1f32f758a7
+        uses: nubificus/git-trailers@9bf4235762fb658e76ce9858fbb97b01ba9f33b8
         with:
           user_info: .github/contributors.yaml
+          rebase_branch: ${{ github.event.pull_request.base.ref }}
+
 
       - name: Create a Pull Request from PR_BRANCH to main and merge it
         env:
