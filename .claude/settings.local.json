@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git config *)",
+      "Bash(git checkout *)",
+      "Bash(make test_nerdctl_namespaces *)",
+      "Bash(GOFLAGS=\"-count=1\" go test *)",
+      "Bash(curl -s https://api.github.com/repos/containerd/nerdctl/releases/latest)",
+      "Bash(curl -s https://api.github.com/repos/containerd/nerdctl/releases/303608152/assets)"
+    ]
+  }
+}

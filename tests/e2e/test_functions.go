@@ -229,7 +229,7 @@ func namespaceTest(tool testTool) error {
 	// We need to retrieve the container's config, in order to get
 	// the namespaces that the container should have joined.
 	containerID := tool.getContainerID()
-	// Try /run/containerd/io.containerd.runtime.v2.task/default/containerID first
+	// Try /var/run/containerd/io.containerd.runtime.v2.task/default/containerID first
 	configPath := filepath.Join("/var/run/containerd/io.containerd.runtime.v2.task/default/", containerID, "/config.json")
 	_, err := os.Stat(configPath)
 	if os.IsNotExist(err) {
@@ -310,9 +310,9 @@ func namespaceTest(tool testTool) error {
 				return fmt.Errorf("cgroup: %w", err)
 			}
 		case specs.TimeNamespace:
-			err = compareNS(cntrNsMap["uts"], selfNsMap["uts"], ns.Path)
+			err = compareNS(cntrNsMap["time_for_children"], selfNsMap["time_for_children"], ns.Path)
 			if err != nil {
-				return fmt.Errorf("uts: %w", err)
+				return fmt.Errorf("time: %w", err)
 			}
 		default:
 			continue

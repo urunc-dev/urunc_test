@@ -155,8 +155,9 @@ func compareNS(cntr string, defNS string, specPath string) error {
 func getProcNS(proc string) (map[string]string, error) {
 	procPath := filepath.Join("/proc", proc, "ns")
 	ns := make(map[string]string)
-	cgroupPath := filepath.Join(procPath, "cgroup")
 	var err error
+
+	cgroupPath := filepath.Join(procPath, "cgroup")
 	ns["cgroup"], err = os.Readlink(cgroupPath)
 	if err != nil {
 		return nil, err
@@ -188,6 +189,11 @@ func getProcNS(proc string) (map[string]string, error) {
 	}
 	utsPath := filepath.Join(procPath, "uts")
 	ns["uts"], err = os.Readlink(utsPath)
+	if err != nil {
+		return nil, err
+	}
+	timeForChildrenPath := filepath.Join(procPath, "time_for_children")
+	ns["time_for_children"], err = os.Readlink(timeForChildrenPath)
 	if err != nil {
 		return nil, err
 	}
