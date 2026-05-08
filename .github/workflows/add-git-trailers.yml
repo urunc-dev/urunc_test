@@ -45,11 +45,10 @@ jobs:
           private-key: ${{ secrets.URUNC_BOT_PRIVATE_KEY }}
 
       - name: Append git trailers
-        uses: nubificus/git-trailers@e159f29955be913751431ec34740c75607bccc21
+        uses: nubificus/git-trailers@a7153bbbe525fca4cdb8e0eacaf771921b8f069b
         with:
           token: ${{ steps.generate-token.outputs.token }}
           user-info: .github/contributors.yaml
-          rebase-branch: ${{ github.event.pull_request.head.ref }}
 
       - name: Merge PR
         env:
