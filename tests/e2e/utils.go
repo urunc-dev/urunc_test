@@ -191,6 +191,11 @@ func getProcNS(proc string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	timePath := filepath.Join(procPath, "time_for_children")
+	ns["time_for_children"], err = os.Readlink(timePath)
+	if err != nil {
+		return nil, err
+	}
 
 	return ns, nil
 }
@@ -245,6 +250,7 @@ func findLineInFile(filePath string, pattern string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Failed to open %s: %v", filePath, err)
 	}
+	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 
