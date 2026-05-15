@@ -17,7 +17,6 @@ package urunce2etesting
 import (
 	"encoding/json"
 	"fmt"
-	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -27,8 +26,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/urunc-dev/urunc/internal/constants"
 	"github.com/vishvananda/netns"
 )
 
@@ -368,44 +367,7 @@ func httpStaticNetTest(tool testTool) (err error) {
 			err = fmt.Errorf("Failed to revert to default network namespace: %v", err)
 		}
 	}()
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return fmt.Errorf("Failed to get all interfaces in current network namespace: %v", err)
-	}
-	var tapUrunc net.Interface
-	for _, iface := range ifaces {
-		if strings.Contains(iface.Name, "urunc") {
-			tapUrunc = iface
-			break
-		}
-	}
-	if tapUrunc.Name == "" {
-		var names []string
-		for _, iface := range ifaces {
-			names = append(names, iface.Name)
-		}
-		err = fmt.Errorf("Expected tap0_urunc, got %v", names)
-		return fmt.Errorf("Failed to find urunc's tap device: %v", err)
-	}
-
-	addrs, err := tapUrunc.Addrs()
-	if err != nil {
-		return fmt.Errorf("Failed to get %s interface's IP addresses: %v", tapUrunc.Name, err)
-	}
-	ipAddr := ""
-	for _, addr := range addrs {
-		tmp := strings.Split(addr.String(), "/")[0]
-		if govalidator.IsIPv4(tmp) {
-			ipAddr = tmp
-			break
-		}
-	}
-	if ipAddr == "" {
-		return fmt.Errorf("Failed to get %s interface's IPv4 address", tapUrunc.Name)
-	}
-	parts := strings.Split(ipAddr, ".")
-	newIP := fmt.Sprintf("%s.%s.%s.2", parts[0], parts[1], parts[2])
-	url := fmt.Sprintf("http://%s:8080", newIP)
+	url := fmt.Sprintf("http://%s:8080", constants.StaticNetworkUnikernelIP)
 	curlCmd := fmt.Sprintf("curl %s", url)
 	params := strings.Fields(curlCmd)
 	cmd := exec.Command(params[0], params[1:]...) //nolint:gosec
@@ -417,21 +379,5 @@ func httpStaticNetTest(tool testTool) (err error) {
 		return fmt.Errorf("Failed to receive valid response")
 	}
 
-	// FIXME: Investigate why the GET request using net/http fails, while is successful using curl
-	//
-	// client := http.DefaultClient
-	// client.Timeout = 10 * time.Second
-	// resp, err := client.Get(url)
-	// if err != nil {
-	// 	t.Logf("Failed to perform GET request to %s: %v", url, err)
-	// }
-	// defer resp.Body.Close()
-	// body, err := io.ReadAll(resp.Body)
-	// if err != nil {
-	// 	t.Logf("Error reading response body: %v", err)
-	// }
-	// t.Log(string(body))
-
-	// Find pod ID
 	return nil
 }
