@@ -16,10 +16,11 @@ package urunce2etesting
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os/exec"
-	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -250,21 +251,53 @@ func checkExpectedOut(expected string, output string, e error) error {
 }
 
 func findValOfKey(searchArea string, key string) (string, error) {
-	keystr := "\"" + key + "\":[^,;\\]}]*"
-	r, err := regexp.Compile(keystr)
-	if err != nil {
-		return "", err
-	}
-	match := r.FindString(searchArea)
-	if match == "" {
+	var data interface{}
+	if err := json.Unmarshal([]byte(searchArea), &data); err != nil {
 		return "", fmt.Errorf("key %s not found in search area", key)
 	}
-
-	keyValMatch := strings.Split(match, ":")
-	if len(keyValMatch) < 2 {
-		return "", fmt.Errorf("invalid format for key %s: %s", key, match)
+	val, found := searchJSONKey(data, key)
+	if !found {
+		return "", fmt.Errorf("key %s not found in search area", key)
 	}
+	return val, nil
+}
 
-	val := strings.ReplaceAll(keyValMatch[1], "\"", "")
-	return strings.TrimSpace(val), nil
+func searchJSONKey(data interface{}, key string) (string, bool) {
+	switch v := data.(type) {
+	case map[string]interface{}:
+		if val, ok := v[key]; ok {
+			return jsonValToString(val), true
+		}
+		for _, child := range v {
+			if result, found := searchJSONKey(child, key); found {
+				return result, true
+			}
+		}
+	case []interface{}:
+		for _, item := range v {
+			if result, found := searchJSONKey(item, key); found {
+				return result, true
+			}
+		}
+	}
+	return "", false
+}
+
+func jsonValToString(v interface{}) string {
+	switch val := v.(type) {
+	case string:
+		return val
+	case float64:
+		if val == float64(int64(val)) {
+			return strconv.FormatInt(int64(val), 10)
+		}
+		return strconv.FormatFloat(val, 'f', -1, 64)
+	case bool:
+		return strconv.FormatBool(val)
+	case nil:
+		return ""
+	default:
+		b, _ := json.Marshal(val)
+		return string(b)
+	}
 }
