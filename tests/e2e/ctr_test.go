@@ -43,12 +43,25 @@ var _ = Describe("Ctr", Ordered, ContinueOnFailure, func() {
 		}
 	})
 
-	DescribeTable("unikernel containers",
-		func(tc containerTestArgs) {
-			skipMissingVolumes(tc)
-			tool = newCtrTool(tc)
-			runForegroundTest(tool, tc)
-		},
-		toTableEntries(ctrTestCases()),
-	)
+	Context("foreground containers", func() {
+		DescribeTable("unikernel containers",
+			func(tc containerTestArgs) {
+				skipMissingVolumes(tc)
+				tool = newCtrTool(tc)
+				runForegroundTest(tool, tc)
+			},
+			toTableEntries(selectTestCases(ctrTestCases(), false)),
+		)
+	})
+
+	Context("detached containers", func() {
+		DescribeTable("unikernel containers",
+			func(tc containerTestArgs) {
+				skipMissingVolumes(tc)
+				tool = newCtrTool(tc)
+				runDetachedTest(tool, tc)
+			},
+			toTableEntries(selectTestCases(ctrTestCases(), true)),
+		)
+	})
 })
