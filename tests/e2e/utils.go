@@ -224,6 +224,13 @@ func verifyNoStaleFiles(containerID string) error {
 		return fmt.Errorf("bundle directory %s still exists", dirPath)
 	}
 
+	// Check /run/containerd/io.containerd.runtime.v2.task/moby/containerID directory does not exist
+	dirPath = "/run/containerd/io.containerd.runtime.v2.task/moby/" + containerID
+	_, err = os.Stat(dirPath)
+	if !os.IsNotExist(err) {
+		return fmt.Errorf("bundle directory %s still exists", dirPath)
+	}
+
 	return nil
 }
 
