@@ -24,13 +24,13 @@ jobs:
       ref: ${{ github.sha }}
       go_version: "1.26.4"
 
-  upload:
-    name: Upload
+  release:
+    name: Rolling release
     needs: build
-    uses: ./.github/workflows/upload_s3.yml
+    permissions:
+      contents: write
+    uses: ./.github/workflows/rolling_release.yml
     with:
       ref: ${{ github.sha }}
-    secrets:
-      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      tag: nightly
 
