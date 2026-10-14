@@ -63,7 +63,7 @@ jobs:
         test: ["test_ctr","test_nerdctl","test_crictl","test_docker"]
         include:
           - arch: amd64
-            runner: ubuntu-22.04
+            runner: ubuntu-24.04
           - arch: arm64
             runner: ubuntu-22.04-arm
 
