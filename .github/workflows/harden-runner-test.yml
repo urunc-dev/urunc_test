@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  with-harden-runner:
+  harden-runner-v2-22-0:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     strategy:
@@ -19,6 +19,48 @@ jobs:
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed # v2.22.0
+        with:
+          egress-policy: audit
+
+      - name: Network check
+        run: |
+          cat /etc/resolv.conf
+          getent hosts github.com
+          timeout 60 git ls-remote https://github.com/urunc-dev/urunc HEAD
+          timeout 30 curl -sSf -o /dev/null https://api.github.com
+
+  harden-runner-v2-22-2:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-22.04-arm]
+        n: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@dc2769abcc0fcfbadfc1df54081c1608579ef6b2 # v2.22.2
+        with:
+          egress-policy: audit
+
+      - name: Network check
+        run: |
+          cat /etc/resolv.conf
+          getent hosts github.com
+          timeout 60 git ls-remote https://github.com/urunc-dev/urunc HEAD
+          timeout 30 curl -sSf -o /dev/null https://api.github.com
+
+  harden-runner-v2-21-1:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-22.04-arm]
+        n: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
         with:
           egress-policy: audit
 
