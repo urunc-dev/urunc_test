@@ -1,0 +1,65 @@
+name: urunc fuzzing
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: 'ClusterFuzzLite mode (batch or prune)'
+        required: true
+        type: string
+      fuzz-seconds:
+        required: true
+        type: number
+      output-sarif:
+        description: 'Save the SARIF results as the fuzz-sarif artifact'
+        required: false
+        type: boolean
+        default: false
+    outputs:
+      build:
+        description: 'Outcome of the fuzzer build'
+        value: ${{ jobs.fuzz.outputs.build }}
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: ClusterFuzzLite ${{ inputs.mode }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    # The ClusterFuzzLite actions run mutable :v1 images, so this job never
+    # gets more than read access. SARIF is uploaded by the caller.
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      build: ${{ steps.build.outcome }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@351661ca32ac09a36dc5ee2d536e3128f2a3c8ed # v2.22.0
+        with:
+          egress-policy: audit
+
+      - name: Build fuzz targets
+        id: build
+        uses: google/clusterfuzzlite/actions/build_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          language: go
+
+      - name: Run fuzz targets
+        uses: google/clusterfuzzlite/actions/run_fuzzers@884713a6c30a92e5e8544c39945cd7cb630abcd1 # v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          language: go
+          mode: ${{ inputs.mode }}
+          fuzz-seconds: ${{ inputs.fuzz-seconds }}
+          output-sarif: ${{ inputs.output-sarif }}
+
+      - name: Save SARIF results
+        if: always() && steps.build.outcome == 'success' && inputs.output-sarif
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fuzz-sarif
+          path: cifuzz-sarif/results.sarif
+          if-no-files-found: error
