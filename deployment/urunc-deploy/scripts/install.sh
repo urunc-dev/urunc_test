@@ -18,6 +18,7 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+# add another change
 containerd_conf_file="/etc/containerd/config.toml"
 containerd_conf_tmpl_file=""
 # The templates k3s/rke2 render their configuration from, in the order they
