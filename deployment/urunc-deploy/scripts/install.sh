@@ -59,7 +59,6 @@ urunc_debug_level_files="${urunc_install_dir}/containerd-debug-level-files"
 # install found it, so that cleanup works without access to the API server
 container_runtime_version_file="${urunc_install_dir}/container-runtime-version"
 
-# just for testing
 # Configurable keys discovered from config.toml
 urunc_config_keys=""
 
